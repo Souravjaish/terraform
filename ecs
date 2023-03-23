@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+    environment {
+        AWS_DEFAULT_REGION = 'your_aws_region'
+        AWS_ACCOUNT_ID = 'your_aws_account_id'
+        AWS_ECR_REPO = 'your_aws_ecr_repo'
+        AWS_ECS_CLUSTER = 'your_aws_ecs_cluster'
+        AWS_ECS_SERVICE = 'your_aws_ecs_service'
+    }
+    stages {
+        stage('Build Docker image') {
+            steps {
+                script {
+                    docker.build("${AWS_ECR_REPO}:latest")
+                }
+            }
+        }
+        stage('Push Docker image to ECR') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'aws-credentials', variable: 'AWS_ACCESS_KEY_ID'),
+                                      string(credentialsId: 'aws-credentials', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com", 'ecr') {
+                            dockerImagePush("${AWS_ECR_REPO}:latest")
+                        }
+                    }
+                }
+            }
+        }
+        stage('Deploy to ECS') {
+            steps {
+                script {
+                    sh "aws ecs update-service --cluster ${AWS_ECS_CLUSTER} --service ${AWS_ECS_SERVICE} --force-new-deployment --image ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_ECR_REPO}:latest"
+                }
+            }
+        }
+    }
+}
