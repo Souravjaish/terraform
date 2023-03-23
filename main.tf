@@ -1,6 +1,12 @@
-provider "aws" {
-  region = "eu-west-3"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
 }
+
 
 resource "aws_instance" "myec2" {
   ami           = "ami-00ae10ea2db12689d"
