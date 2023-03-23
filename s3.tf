@@ -1,7 +1,7 @@
 
 
-resource "aws_s3_bucket" "example" {
-  bucket = "my-first-bucket123"
+resource "aws_s3_bucket" "souravjaishrupali" {
+  bucket = "souravjaishrupali"
   acl    = "private"
 
   tags = {
