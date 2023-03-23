@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   stages {
-    stage('Checkout') {
+    stage('source') {
       steps {
-        checkout scm
+        git 'https://github.com/Souravjaish/terraform.git'
       }
     }
     
